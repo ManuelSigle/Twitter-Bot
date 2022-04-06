@@ -1,0 +1,25 @@
+Twitter Bot auf den Server bringen: 
+
+Node Express auf dem Server erstellen: 
+?Könnte eventuelle Probleme verusachen, wenn man zwei Server mit laufen hat die beide auf den gleichen Port schauen?
+    => Falls es ein Probleme ist muss auf dem main Server eine Passende Route erstellt werden 
+
+    => HTTP und HTTPS einstellen
+    => einen passende Route erstellen
+        => Muss mit einem Pin geschützt werden
+        => Seassion erstellen
+
+Oberfläche erstellen:
+    => Es muss der Text eingegeben werden
+    => Button zum senden
+    => Bestätigung
+
+Bot Uhrzeit: 
+    => Random zeiten erstellen für morgen mittags abends etc. 
+    => eventuell auch randombasierte zwischentweets => es kann jeweils am Abend die Anzahl der jeweiligen Tweets für den nächten Tag bestimmt werden
+
+ERstellen von mehreren Promts
+
+Fehlerbehebung, das ein Tweet mit zu vielen ZEichen erstellt wird. 
+
+    
