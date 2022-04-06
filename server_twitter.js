@@ -1,8 +1,10 @@
+console.log("Server startet!");
+const private_stuff = require("./private/privat_stuff.json");
 const mysql = require("mysql");
 const express = require("express");
 const app = express();
 
-app.listen(3000);
+app.listen(80);
 
 const sql_conf = require("./private/sql_conf.json");
 const sql_con = mysql.createConnection({
@@ -32,9 +34,14 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 
-callbackURL = "http://127.0.0.1:3000/callback";
+callbackURL = private_stuff.callbackURL;
 
 app.get("/", (req, res) => {
+    res.send("Hallo");
+    res.end();
+});
+
+app.get("/getAPI", (req, res) => {
     const { url, codeVerifier, state } = twitterClient.generateOAuth2AuthLink(
         callbackURL, { scope: ["tweet.read", "tweet.write", "users.read", "offline.access"] }
     );
@@ -44,7 +51,7 @@ app.get("/", (req, res) => {
     res.redirect(url);
 });
 
-app.get("/callback", (req, res) => {
+app.get(private_stuff.slash_callbackURL, (req, res) => {
     var state = req.query.state;
     var code = req.query.code;
 
@@ -84,13 +91,16 @@ app.get("/tweet", (req, res) => {
 
         sql_con.query("UPDATE Twitter_Bot SET accessToken = ?, refreshToken = ?", [refreshed_User.accessToken, refreshed_User.refreshToken]);
 
-        const nextTweet = await openai.createCompletion('text-davinci-001', {
+        const aiContent = await openai.createCompletion('text-davinci-001', {
             prompt: "Daily routine #lifetweet",
             max_tokens: 64,
         });
 
+        //*Adding an Emoji
+        let tweet_content = aiContent.data.choices[0].text + '🐒';
+
         const tweet = await refreshedClient.v2.tweet(
-            nextTweet.data.choices[0].text
+            tweet_content
         );
 
         res.send(tweet);
