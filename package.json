@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "express": "^4.17.3",
+    "mysql": "^2.18.1",
+    "openai": "^2.0.5",
+    "twitter-api": "^1.0.6",
+    "twitter-api-v2": "^1.11.2"
+  }
+}
