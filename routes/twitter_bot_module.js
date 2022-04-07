@@ -1,45 +1,38 @@
-console.log("Server startet!");
-const private_stuff = require("./private/privat_stuff.json");
 const mysql = require("mysql");
 const express = require("express");
-const app = express();
+const router = express.Router();
+const sql_conf = require("../../private/configs/sql_config_twitter_Bot.json");
+const TwitterApi = require('twitter-api-v2').default;
 
-const sql_conf = require("./private/sql_conf.json");
+const URLs = require("../../private/URLs.json");
+const twitter_conf = require("../../private/configs/twitter_Api_config.json");
+const { Configuration, OpenAIApi } = require("openai");
+const openai_conf = require("../../private/configs/openai_config.json");
+const configuration = new Configuration({
+    organization: openai_conf.organization,
+    apiKey: openai_conf.apiKey,
+});
+
+const openai = new OpenAIApi(configuration);
 const sql_con = mysql.createConnection({
     host: sql_conf.host,
     user: sql_conf.user,
     password: sql_conf.password,
     database: sql_conf.database,
 });
-sql_con.connect((err) => {
-    if (err) throw err;
-    console.log("Connected!");
-});
 
-const TwitterApi = require('twitter-api-v2').default;
-const twitter_conf = require("./private/twitter_Api_config.json");
 const twitterClient = new TwitterApi({
     clientId: twitter_conf.clientId,
     clientSecret: twitter_conf.clientSecret,
 });
+callbackURL = URLs.callbackURL;
 
-const { Configuration, OpenAIApi } = require("openai");
-const openai_conf = require("./private/openai_config.json");
-const configuration = new Configuration({
-    organization: openai_conf.organization,
-    apiKey: openai_conf.apiKey,
-});
-const openai = new OpenAIApi(configuration);
-
-
-callbackURL = private_stuff.callbackURL;
-
-app.get("/", (req, res) => {
+router.get(URLs.url1, (req, res) => {
     res.send("Hallo");
     res.end();
 });
 
-app.get("/getAPI", (req, res) => {
+router.get(URLs.url2, (req, res) => {
     const { url, codeVerifier, state } = twitterClient.generateOAuth2AuthLink(
         callbackURL, { scope: ["tweet.read", "tweet.write", "users.read", "offline.access"] }
     );
@@ -49,7 +42,7 @@ app.get("/getAPI", (req, res) => {
     res.redirect(url);
 });
 
-app.get(private_stuff.slash_callbackURL, (req, res) => {
+router.get(URLs.slash_callbackURL, (req, res) => {
     var state = req.query.state;
     var code = req.query.code;
 
@@ -79,7 +72,7 @@ app.get(private_stuff.slash_callbackURL, (req, res) => {
     });
 });
 
-app.get("/tweet", (req, res) => {
+router.get(URLs.url3, (req, res) => {
     sql_con.query("SELECT refreshToken FROM Twitter_Bot", async(err, data, fields) => {
         const refreshed_User = {
             client: refreshedClient,
@@ -90,12 +83,12 @@ app.get("/tweet", (req, res) => {
         sql_con.query("UPDATE Twitter_Bot SET accessToken = ?, refreshToken = ?", [refreshed_User.accessToken, refreshed_User.refreshToken]);
 
         const aiContent = await openai.createCompletion('text-curie-001', {
-            prompt: "monkey #Monkeytweet",
+            prompt: "tell a joke #tweet",
             max_tokens: 64,
         });
 
         //*Adding an Emoji
-        let tweet_content = aiContent.data.choices[0].text + " #monkey #funny";
+        let tweet_content = aiContent.data.choices[0].text;
 
         const tweet = await refreshedClient.v2.tweet(
             tweet_content
@@ -104,3 +97,5 @@ app.get("/tweet", (req, res) => {
         res.send(tweet);
     });
 });
+
+module.exports = router;
