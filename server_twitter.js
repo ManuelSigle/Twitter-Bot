@@ -4,7 +4,7 @@ const mysql = require("mysql");
 const express = require("express");
 const app = express();
 
-app.listen(80);
+app.listen(443);
 
 const sql_conf = require("./private/sql_conf.json");
 const sql_con = mysql.createConnection({
@@ -91,13 +91,13 @@ app.get("/tweet", (req, res) => {
 
         sql_con.query("UPDATE Twitter_Bot SET accessToken = ?, refreshToken = ?", [refreshed_User.accessToken, refreshed_User.refreshToken]);
 
-        const aiContent = await openai.createCompletion('text-davinci-001', {
-            prompt: "Daily routine #lifetweet",
+        const aiContent = await openai.createCompletion('text-curie-001', {
+            prompt: "monkey #Monkeytweet",
             max_tokens: 64,
         });
 
         //*Adding an Emoji
-        let tweet_content = aiContent.data.choices[0].text + '🐒';
+        let tweet_content = aiContent.data.choices[0].text + " #monkey #funny";
 
         const tweet = await refreshedClient.v2.tweet(
             tweet_content
