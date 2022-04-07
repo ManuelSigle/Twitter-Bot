@@ -4,8 +4,6 @@ const mysql = require("mysql");
 const express = require("express");
 const app = express();
 
-app.listen(443);
-
 const sql_conf = require("./private/sql_conf.json");
 const sql_con = mysql.createConnection({
     host: sql_conf.host,
