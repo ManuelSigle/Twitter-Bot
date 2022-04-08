@@ -5,7 +5,7 @@ Node Express auf dem Server erstellen:
     => Falls es ein Probleme ist muss auf dem main Server eine Passende Route erstellt werden 
 
     => HTTP und HTTPS einstellen
-    => einen passende Route erstellen
+    => einen passende Route erstellen ✔
         => Muss mit einem Pin geschützt werden
         => Seassion erstellen
 
