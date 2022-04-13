@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const sql_conf = require("../../private/configs/sql_config_twitter_Bot.json");
 const TwitterApi = require('twitter-api-v2').default;
+const fs = require("fs");
 
 const twitter_conf = require("../../private/configs/twitter_Api_config.json");
 const { Configuration, OpenAIApi } = require("openai");
@@ -37,6 +38,12 @@ const creat_new_day = () => {
     clock_afternoon_tweets = afternoon_tweets();
     clock_evening_tweets = evening_tweets();
 
+    let buffer = "Morning: " + clock_morning_tweets + "\n" + "Afternoon: " + clock_afternoon_tweets + "\n" + "Evening: " + clock_evening_tweets + "\n";
+
+    fs.open("../log.txt", "a", (err, fd) => {
+        fs.write(fd, buffer, (err) => {});
+    });
+
     console.log("Tweets for Today: ");
     console.log("Morning: " + clock_morning_tweets);
     console.log("Afternoon: " + clock_afternoon_tweets);
@@ -54,7 +61,7 @@ const tweet = () => {
         sql_con.query("UPDATE Twitter_Bot SET accessToken = ?, refreshToken = ?", [refreshed_User.accessToken, refreshed_User.refreshToken]);
 
         const aiContent = await openai.createCompletion('text-curie-001', {
-            prompt: "tweet somethink funny #funny #tweet",
+            prompt: "Write a funny tweet #tweet",
             max_tokens: 64,
         });
 
@@ -64,6 +71,13 @@ const tweet = () => {
         const tweet = await refreshedClient.v2.tweet(
             tweet_content
         );
+
+        let date = new Date();
+
+        fs.open("../log.txt", "a", (err, fd) => {
+            fs.write(fd, date + tweet_content + "\n", (err) => {});
+        })
+
         console.log(tweet);
     });
 }
